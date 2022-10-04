@@ -40,7 +40,7 @@ export default function ChatConversation(...args) {
   }
 
   return (
-    <Container className={classes.root}>
+    <Box className={classes.root}>
       <AppBar position="static">
 			  <Toolbar>
 				  <Typography variant="h8">Nachrichtenverlauf</Typography>
@@ -72,6 +72,6 @@ export default function ChatConversation(...args) {
           </Grid>
         </Box>
       </Paper>
-    </Container>
+    </Box>
   );
 }
