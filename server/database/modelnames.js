@@ -1,1 +1,1 @@
-module.exports={"USER":"User"}
+module.exports={"MESSAGE":"Message","USER":"User"}
