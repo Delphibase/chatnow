@@ -14,12 +14,23 @@ module.exports = class RequestHandler {
    * @returns
    */
   static async onDoRequest (param, callback, appServer) {
-		if (! param?.target) {
+    if (! param?.target) {
 			let err = createDefaultResultContainer (param, RESULTTYPES.ERROR);
 			err.message = 'doRequest - Target ist nicht gesetzt.';
 			callback (err);
 			return;
 		}
+
+    let userIdRequired = ! ['enternickname'].includes (param.target);
+
+    let clientConMgr = appServer.getClientConnectionManager ();
+    let client = await clientConMgr.getClientById (param.socketId);
+    if ((userIdRequired && ! client?.userId) || ! client?.socket?.connected) {
+      let err = createDefaultResultContainer (param, RESULTTYPES.ERROR);
+      err.message = 'Liste der Chats kann nicht abgerufen werden.\nBenutzer ist nicht angemeldet.';
+      callback (err);
+			return;
+    }
 
     try {
       //---
@@ -29,15 +40,14 @@ module.exports = class RequestHandler {
       if (param.target == 'enternickname') {
         let nickname = (param.data?.nickname || '').trim ();
         let usrRecord = await createOrGetUserByName (nickname)
-        let clientConMgr = appServer.getClientConnectionManager ();
         await clientConMgr.setUserIdForClient (param.socketId, usrRecord._id);
-        clientConMgr.notifyClients ('userstatechanged', {newUserSockerId: param.socketId, user: usrRecord})
+        clientConMgr.notifyClients ('userstatechanged', {newUserSocketId: param.socketId, user: usrRecord})
 
         resContainer.type = RESULTTYPES.SUCCESSFULL;
         resContainer.data = [usrRecord];
       }
       else if (param.target == 'getchatlistforuser') {
-        let chatList = await getChatListForUser (param.data.currentUserId, appServer);
+        let chatList = await getChatListForUser (client.userId, appServer);
         resContainer.type = RESULTTYPES.SUCCESSFULL;
         resContainer.data = chatList;
       }

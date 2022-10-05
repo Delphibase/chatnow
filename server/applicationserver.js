@@ -41,6 +41,7 @@ class ApplicationServer {
           this.getClientConnectionManager ().notifyClients ('userstatechanged')
         })
         socket.on ('dorequest', async (param, clb) => {
+          param = param ?? {};
           param.socketId = socket.id;
           return RequestHandler.onDoRequest (param, clb, this);
         });
