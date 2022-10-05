@@ -39,7 +39,7 @@ function App(props) {
   if (currentUser) {
     return (
       <Fragment>
-        <TitleBar />
+        <TitleBar currentUser={currentUser}/>
         <Grid container spacing={3}>
           <Grid item xs={3}>
             <ChatList chats={chatList} currentUser={currentUser}/>
