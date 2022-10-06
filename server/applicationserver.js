@@ -1,10 +1,16 @@
 const express = require('express');
 const http = require ('http');
-const cors = require ('cors');
 const {Server} = require ('socket.io');
 const ConnectionManager = require ('./database/connectionmanager');
 const RequestHandler = require ('./requesthandler');
 
+
+/**
+ * Diese Klasse verwaltet den Lebenszyklus des Anwendungsservers.
+ * Zum Lebenszyklus gehört auch die Initialisierung der Datenbank und Socket-Verbindung zum Client.
+ *
+ * @class ApplicationServer
+ */
 class ApplicationServer {
   #clientConMgr = null;
 
@@ -13,7 +19,9 @@ class ApplicationServer {
   }
 
   /**
-   *
+   * Diese Funktion liefert eine Instanz zurück, um indirekt auf
+   * die Socket-Verbindungen aller Clients zugreifen zu können,
+   * um einzelne Clients explizit anzusprechen (Push-Message)
    *
    * @returns {ClientConnectionManager}
    * @memberof ApplicationServer
@@ -22,7 +30,12 @@ class ApplicationServer {
     return this.#clientConMgr;
   }
 
-	async boot () {
+	/**
+   * Diese Funktion initialisiert und startet den Anwendungsserver.
+   *
+   * @memberof ApplicationServer
+   */
+  async boot () {
     try {
       let cm = new ConnectionManager ();
       await cm.initDatabase ();
@@ -62,6 +75,7 @@ module.exports = ApplicationServer;
 
 /**
  * Diese Klasse hält eine Liste der aktiven Socket-Verbindungen.
+ * Potentiell eine Fassade zu REDIS.
  * 
  * todo: Es bietet sich an diese Informationen in einer Redis-DB zu speichern.
  * Heute werden diese Informationen transient im Speicher des Servers gehalten.
@@ -73,6 +87,14 @@ module.exports = ApplicationServer;
 class ClientConnectionManager {
   #clientMap = new Map ();
 
+  /**
+   * Diese Funktion fügt eine Socket-Verbindung der Liste der
+   * aktiven Verbindungen hinzu.
+   *
+   * @param {*} socket
+   * @returns
+   * @memberof ClientConnectionManager
+   */
   async addClient (socket) {
     if (! socket) {
       throw new Error ('addClient - parameter socket ist nicht gesetzt.');
@@ -85,6 +107,14 @@ class ClientConnectionManager {
     return res;
   }
 
+  /**
+   * Diese Funktion entfernt eine Socket-Verbindung auf der Liste
+   * der aktiven Verbindungen anhand der Socket-ID.
+   *
+   * @param {*} socketId
+   * @returns
+   * @memberof ClientConnectionManager
+   */
   async removeClientById (socketId) {
     if (! socketId) {
       throw new Error ('removeClientById - parameter socketId ist nicht gesetzt.');
@@ -94,6 +124,14 @@ class ClientConnectionManager {
     return res;
   }
 
+  /**
+   * Diese Funktion liefert zur Socket-ID die passende Socket-Verbindung
+   * zum Client zurück.
+   *
+   * @param {*} socketId
+   * @returns
+   * @memberof ClientConnectionManager
+   */
   async getClientById (socketId) {
     if (! socketId) {
       throw new Error ('getClientById - parameter socketId ist nicht gesetzt.');
@@ -105,11 +143,36 @@ class ClientConnectionManager {
     return null;
   }
 
+  /**
+   * Diese Funktion liefert eine Liste aller aktiven Socket-Verbindungen zurück.
+   *
+   * @returns
+   * @memberof ClientConnectionManager
+   */
   async getAllClients () {
     return [...this.#clientMap.values ()];
   }
 
+  /**
+   * Diese Funktion ergänzt zu einer Socket-Verbindung die 
+   * korrespondierende Benutzer-ID und Benutzername des Anwenders.
+   *
+   * @param {*} socketId
+   * @param {*} userId
+   * @param {*} userName
+   * @memberof ClientConnectionManager
+   */
   async setUserIdForClient (socketId, userId, userName) {
+    if (! socketId) {
+      throw new Error ('setUserIdForClient - Parameter socketId ist nicht gesetzt.');
+    }
+    if (! userId) {
+      throw new Error ('setUserIdForClient - Parameter userId ist nicht gesetzt.');
+    }
+    if (! userName) {
+      throw new Error ('setUserIdForClient - Parameter userName ist nicht gesetzt.');
+    }
+
     let clt = await this.getClientById (socketId);
     if (clt) {
       clt.userId = userId;
@@ -117,14 +180,42 @@ class ClientConnectionManager {
     }
   }
 
+  /**
+   * Diese Funktion benachrichtigt alle aktiven Clients (online)
+   * im Kontext der angegeben Aktion.
+   *
+   * @param {String} action
+   * @param {*} [data={}]
+   * @memberof ClientConnectionManager
+   */
   async notifyClients (action, data = {}) {
+    if (! action) {
+      throw new Error ('notifyClients - Parameter action ist nicht gesetzt.');
+    }
+
     let clientList = await this.getAllClients ();
     for (let client of clientList) {
       this.notifyClient (client, action, data);
     }
   }
 
+  /**
+   * Diese Funktion benachrichtigt einen einzelnen aktiven Clients (online)
+   * im Kontext der angegeben Aktion.
+   *
+   * @param {*} client
+   * @param {*} action
+   * @param {*} data
+   * @memberof ClientConnectionManager
+   */
   notifyClient (client, action, data) {
+    if (! client) {
+      throw new Error ('notifyClient - Parameter client ist nicht gesetzt.');
+    }
+    if (! action) {
+      throw new Error ('notifyClient - Parameter action ist nicht gesetzt.');
+    }
+
     if (client.userId && client.socket?.connected) {
       let tmpData = {
         ... data,
