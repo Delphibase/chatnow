@@ -8,6 +8,14 @@ const useStyles = makeStyles((theme) => ({
 	},
   }));
 
+
+/**
+ * Diese Komponente stellt die Haupt-Titelbar der Anwendung dar.
+ *
+ * @export
+ * @param {*} props
+ * @returns
+ */
 export default function TitleBar (props) {
 	const classes = useStyles();
 	return (
@@ -19,7 +27,7 @@ export default function TitleBar (props) {
 							<Typography variant="h6">ChatNOW</Typography>
 						</Grid>
 						<Grid item>
-							<Avatar {...stringAvatar (props.currentUser.name)}/>
+							<Avatar {...getAvatarInitialien (props.currentUser.name)}/>
 						</Grid>
 					</Grid>
 				</Toolbar>
@@ -28,12 +36,21 @@ export default function TitleBar (props) {
 	)
 }
 
-function stringToColor(string) {
+/**
+ * Diese Funktion leitet auf dem Nickname einen Farb-Code für das Benutzer-Avatar
+ * in der Titelbar ab.
+ * 
+ * @see https://mui.com/material-ui/react-avatar/
+ *
+ * @param {String} nickname
+ * @returns
+ */
+function stringToColor(nickname) {
   let hash = 0;
   let i;
 
-  for (i = 0; i < string.length; i += 1) {
-    hash = string.charCodeAt(i) + ((hash << 5) - hash);
+  for (i = 0; i < nickname.length; i += 1) {
+    hash = nickname.charCodeAt(i) + ((hash << 5) - hash);
   }
 
   let color = '#';
@@ -44,14 +61,21 @@ function stringToColor(string) {
   return color;
 }
 
-function stringAvatar(name) {
-	let nameElements = name.split(' ');
+/**
+ * Diese Funktion ermittelt zum Nickname die Initialien
+ * und Farbcode für das Avatar und liefert ein JSX-Ausdruck zurück
+ *
+ * @param {*} nickname
+ * @returns
+ */
+function getAvatarInitialien(nickname) {
+	let nameElements = nickname.split(' ');
 	let letters = nameElements.length > 1 ?
-		`${name.split(' ')[0][0]}${name.split(' ')[1][0]}` :
-		`${name.split(' ')[0][0]}`;
+		`${nickname.split(' ')[0][0]}${nickname.split(' ')[1][0]}` :
+		`${nickname.split(' ')[0][0]}`;
   return {
     sx: {
-      bgcolor: stringToColor(name),
+      bgcolor: stringToColor(nickname),
     },
     children: letters,
   };

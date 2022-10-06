@@ -1,12 +1,14 @@
 import * as React from 'react';
-import Button from '@mui/material/Button';
-import TextField from '@mui/material/TextField';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
-import DialogTitle from '@mui/material/DialogTitle';
+import {Button, TextField, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle} from '@mui/material';
 
+/**
+ * Diese Komponente stellt einen Dialog dar, wo der Anwneder seinen Nickname
+ * eintragen kann, womit dieser als Teilnehmer im Chat-Raum auftritt.
+ *
+ * @export
+ * @param {*} props
+ * @returns
+ */
 export default function NicknameDialog(props) {
 	const usrname = (props && props.currentUser) ? props.currentUser.usrname : '';
 	const [open, setOpen] = React.useState(true);

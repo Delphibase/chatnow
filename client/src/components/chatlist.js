@@ -1,13 +1,6 @@
 import React, {useState} from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import List from '@mui/material/List';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemText from '@mui/material/ListItemText';
-import ListItemAvatar from '@mui/material/ListItemAvatar';
-import Box from '@mui/material/Box';
-import {AppBar, Toolbar, Typography, Paper} from '@mui/material';
-import Avatar from '@mui/material/Avatar';
-import Badge from '@mui/material/Badge'
+import {Badge, Avatar, Box, List, ListItemButton, ListItemText, ListItemAvatar, AppBar, Toolbar, Typography, Paper} from '@mui/material';
 import {People} from '@material-ui/icons';
 
 const useStyles = makeStyles((theme) => ({
@@ -20,6 +13,14 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+/**
+ * Diese Komponente stellt die Chat-Kontaktliste dar, aus der ein
+ * Benutzer für den Start eine Chat-Konversation ausgewählt werden kann.
+ *
+ * @export
+ * @param {*} props
+ * @returns
+ */
 export default function ChatList(props) {
   const classes = useStyles();
   let selUserId = props.selectedChatUserInfo ? props.selectedChatUserInfo._id : null;
@@ -32,6 +33,7 @@ export default function ChatList(props) {
     }
   };
 
+  // Listeneintrag für einen Chat-Kontakt aufbereiten
   const chats = props.chats || [];
   const chatItems = chats.map (elm => {
     let avtColorStyle = elm.isOnline ? {color:'green'} : {color:'white'};
@@ -48,7 +50,6 @@ export default function ChatList(props) {
       </ListItemButton>
     )
   });
-  
 
   return (
     <Box className={classes.root}>

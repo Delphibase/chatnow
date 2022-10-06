@@ -15,6 +15,14 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
+
+/**
+ * Diese Komponente stellt das Nachrichtenfenster der Chat-Anwendung dar.
+ *
+ * @export
+ * @param {*} props
+ * @returns
+ */
 export default function ChatConversation(props) {
   const classes = useStyles();
 
@@ -30,10 +38,6 @@ export default function ChatConversation(props) {
       </ListItemButton>
     )
   });
-
-  const onChangeMessage = (event) => {
-    setMessage (event.target.value);
-  }
 
   const onClickSend = (event) => {
     if (message && props.onSendMessageClick) {
@@ -67,7 +71,7 @@ export default function ChatConversation(props) {
             </Grid>
             <Grid item xs={10} pl={3}>
               <FormControl fullWidth>
-                <TextField label="Nachricht" value={message} required variant='outlined' onChange={onChangeMessage}></TextField>
+                <TextField label="Nachricht" value={message} required variant='outlined' onChange={(event) => setMessage (event.target.value)}></TextField>
               </FormControl>
             </Grid>
             <Grid item xs={2}  pl={3} pr={3} >
