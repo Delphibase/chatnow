@@ -7,6 +7,8 @@
 7. React v18
 8. MaterialUI (mui.com) v4.x
 
+Sneak-Peak Video: https://hidrive.ionos.com/lnk/g9VruuuQ
+
 # chatnow - Installationsanleitung
 ## 1 - Postgres Datenbank im Docker installieren und starten
 ```
