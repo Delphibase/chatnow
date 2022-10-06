@@ -5,9 +5,12 @@ import {Box, Paper, Grid, List, ListItemButton, ListItemText, FormControl, TextF
 const useStyles = makeStyles((theme) => ({
   root: {
     marginTop: '10px',
+    height: '90vh',
+    display:"flex",
+    flexDirection:"column"
   },
   chatmessages: {
-    height: '500px',
+    height: '70vh',
     overflow: 'auto'
   }
 }));
@@ -49,8 +52,8 @@ export default function ChatConversation(props) {
 				  <Typography variant="h8">{"Nachrichtenverlauf mit " + props.selectedChatUserInfo.name}</Typography>
 			  </Toolbar>
 		  </AppBar>
-      <Paper>
-        <Box pb={3}>
+      <Paper style={{height: '100%'}}>
+        <Box pb={3} style={{height: '100%', display:"flex"}}>
           <Grid container>
             <Grid item xs={12}>
               <Box className={classes.chatmessages}>
@@ -59,7 +62,7 @@ export default function ChatConversation(props) {
                 </List>
               </Box>
             </Grid>
-            <Grid item xs={12} pb={3}>
+            <Grid item xs={12}>
               <Divider />
             </Grid>
             <Grid item xs={10} pl={3}>

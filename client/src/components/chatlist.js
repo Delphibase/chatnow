@@ -12,9 +12,11 @@ import {People} from '@material-ui/icons';
 
 const useStyles = makeStyles((theme) => ({
   root: {
-	marginTop: '10px',
+	  marginTop: '10px',
     width: '100%',
-	height: '605px'
+	  height: '90vh',
+    display:"flex",
+    flexDirection:"column"
   },
 }));
 
