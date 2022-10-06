@@ -1,4 +1,4 @@
-const { Sequelize, Op, Model, DataTypes, UnknownConstraintError } = require('sequelize');
+const { DataTypes } = require('sequelize');
 
 const User = {
 	_id: {
