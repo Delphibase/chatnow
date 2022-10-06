@@ -109,24 +109,29 @@ class ClientConnectionManager {
     return [...this.#clientMap.values ()];
   }
 
-  async setUserIdForClient (socketId, userId) {
+  async setUserIdForClient (socketId, userId, userName) {
     let clt = await this.getClientById (socketId);
     if (clt) {
       clt.userId = userId;
+      clt.userName = userName;
     }
   }
 
   async notifyClients (action, data = {}) {
     let clientList = await this.getAllClients ();
     for (let client of clientList) {
-      if (client.userId && client.socket?.connected) {
-        let tmpData = {
-          ... data,
-          receiverUserId: client.userId,
-          action: action
-        }
-        client.socket.emit (action, tmpData);
+      this.notifyClient (client, action, data);
+    }
+  }
+
+  notifyClient (client, action, data) {
+    if (client.userId && client.socket?.connected) {
+      let tmpData = {
+        ... data,
+        receiverUserId: client.userId,
+        action: action
       }
+      client.socket.emit (action, tmpData);
     }
   }
 }

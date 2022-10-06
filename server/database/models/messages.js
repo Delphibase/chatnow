@@ -6,10 +6,10 @@ const Message = {
 		primaryKey: true,
 		defaultValue: DataTypes.UUIDV4
 	},
-	fromuser_id: DataTypes.UUID,
-	touser_id: DataTypes.UUID,
+	senderuser_id: DataTypes.UUID,
+	recipientuser_id: DataTypes.UUID,
 	text: DataTypes.STRING,
-	deliverystatus: DataTypes.INTEGER
+	// deliverystatus: DataTypes.INTEGER // comming soon
 }
 
 module.exports = {

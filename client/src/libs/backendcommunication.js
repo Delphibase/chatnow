@@ -6,7 +6,8 @@ export default class BackendCommunication {
 	constructor () {
 		if (! instance) {
 			this.socket = io.connect ('http://localhost:3001');
-      this.socket.on ('userstatechanged', this.onUserStateChangedInternal.bind (this))
+      this.socket.on ('userstatechanged', this.onUserStateChangedInternal.bind (this));
+			this.socket.on ('newmessagereceive', this.onNewMessageReceivedInternal.bind (this));
 			instance = this;
 		}
 		return instance;
@@ -31,4 +32,10 @@ export default class BackendCommunication {
       this.onUserStateChannged (data);
     }
   }
+
+	onNewMessageReceivedInternal (data) {
+		if (this.onNewMessageReceived) {
+      this.onNewMessageReceived (data);
+    }
+	}
 }

@@ -1,6 +1,6 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import {Box, Container, Paper, Grid, List, ListItem, ListItemText, FormControl, TextField, Button, Icon, Divider, AppBar, Toolbar, Typography} from '@mui/material';
+import {Box, Paper, Grid, List, ListItemButton, ListItemText, FormControl, TextField, Button, Icon, Divider, AppBar, Toolbar, Typography} from '@mui/material';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -12,20 +12,19 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export default function ChatConversation(...args) {
-  const props = args[0] || null;
+export default function ChatConversation(props) {
   const classes = useStyles();
 
-  const [messageList, setChatMessages] = React.useState ([{_id:5, username:'Dirk', message: 'ffff'},{_id:5, username:'Dirk', message: 'ffff'},{_id:5, username:'Dirk', message: 'ffff', isme: true}]);
   const [message, setMessage] = React.useState ('');
 
-  const messagesAsListElm = messageList.map ((elm) => {
-    const txtColor = elm.isme ? 'green' : 'blue';
-    const txtAlign = elm.isme ? 'right' : 'left';
+  const messagesAsListElm = props.chatconversation.map ((elm) => {
+    const txtColor = elm.authorisme ? 'green' : 'blue';
+    const txtAlign = elm.authorisme ? 'right' : 'left';
+    const authorAndTimeStamp = `${elm.author} (${new Date (elm.createdAt).toLocaleString ()})`;
     return (
-      <ListItem key={elm._id}>
-        <ListItemText primaryTypographyProps={{ style: {color: txtColor, textAlign: txtAlign}}} secondaryTypographyProps={{style: {textAlign: txtAlign}}} primary={elm.username} secondary={elm.message}/>
-      </ListItem>
+      <ListItemButton autoFocus={elm.focus || false}>
+        <ListItemText primaryTypographyProps={{ style: {color: txtColor, textAlign: txtAlign}}} secondaryTypographyProps={{style: {textAlign: txtAlign}}} primary={authorAndTimeStamp} secondary={elm.text}/>
+      </ListItemButton>
     )
   });
 
@@ -34,16 +33,20 @@ export default function ChatConversation(...args) {
   }
 
   const onClickSend = (event) => {
-    if (message) {
-      console.log ("Dirk ", message, props)
+    if (message && props.onSendMessageClick) {
+      props.onSendMessageClick ({
+        recipientUserId: props.selectedChatUserInfo._id,
+        message: message
+      });
     }
+    setMessage ('');
   }
 
   return (
     <Box className={classes.root}>
       <AppBar position="static">
 			  <Toolbar>
-				  <Typography variant="h8">Nachrichtenverlauf</Typography>
+				  <Typography variant="h8">{"Nachrichtenverlauf mit " + props.selectedChatUserInfo.name}</Typography>
 			  </Toolbar>
 		  </AppBar>
       <Paper>
@@ -61,7 +64,7 @@ export default function ChatConversation(...args) {
             </Grid>
             <Grid item xs={10} pl={3}>
               <FormControl fullWidth>
-                <TextField label="Nachricht" required variant='outlined' onChange={onChangeMessage}></TextField>
+                <TextField label="Nachricht" value={message} required variant='outlined' onChange={onChangeMessage}></TextField>
               </FormControl>
             </Grid>
             <Grid item xs={2}  pl={3} pr={3} >
