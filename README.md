@@ -53,6 +53,6 @@ Befehl ``` npm start ``` ausführen
 ## 5- Am Chat-Client anmelden
 Im Browser ```http://localhost:3000``` öffnen und mit belibigem Nichname anmelden.
 
-Hier ergänzend noch ein Sneak-Peak Video: https://hidrive.ionos.com/lnk/xy1ruzpq
+Hier ergänzend noch ein Sneak-Peak Video: https://hidrive.ionos.com/lnk/g9VruuuQ
 
 
