@@ -6,11 +6,18 @@ const ConnectionManager = require ('./database/connectionmanager');
 module.exports = class RequestHandler {
 
 	/**
-   *
+   * Diese Funktion stellt eine Handler dar, um Anfragen eines Clients
+   * über den Socket-Kanal 'dorequest' entgegen zu nehmen.
+   * 
+   * -----
+   * !! Anmerkung: Zur Reduzierung der Komplexität für den Show-Case
+   * ist im ersten Schritt auf eine Entkopplung der Fach-Prozesse aus
+   * dieser Funktion verzichtet worden!!
+   * ----
    *
    * @static
-   * @param {*} param
-   * @param {*} callback
+   * @param {JSON} param
+   * @param {Function} callback
    * @param {ApplicationServer} appServer
    * @returns
    */
@@ -22,13 +29,14 @@ module.exports = class RequestHandler {
 			return;
 		}
 
+    // Festlegung für welche Prozesse eine existierende Benutzer-ID (=Angemeldet) zwingend benötigt wird
     let userIdRequired = ! ['enternickname'].includes (param.target);
 
     let clientConMgr = appServer.getClientConnectionManager ();
     let client = await clientConMgr.getClientById (param.socketId);
     if ((userIdRequired && ! client?.userId) || ! client?.socket?.connected) {
       let err = createDefaultResultContainer (param, RESULTTYPES.ERROR);
-      err.message = 'Liste der Chats kann nicht abgerufen werden.\nBenutzer ist nicht angemeldet.';
+      err.message = 'Die Anfrage kann nicht ausgeführt werden.\nBenutzer ist unbekannt oder nicht angemeldet.';
       callback (err);
 			return;
     }
@@ -67,7 +75,7 @@ module.exports = class RequestHandler {
         resContainer.data = [msg];
       }
       else if (param.target == 'getsinglechat') {
-        let convInfo = await loadChatConversation (param.messageId, param.chatmemberUserIds, param.complete, client.userId, appServer);
+        let convInfo = await loadChatConversation (param.messageId, param.chatmemberUserIds, param.complete, client.userId);
         resContainer.type = RESULTTYPES.SUCCESSFULL;
         resContainer.data = convInfo;
       }
@@ -83,6 +91,13 @@ module.exports = class RequestHandler {
 	}
 }
 
+/**
+ * Diese Funktion erzeugt einen Benutzerdatensatz zum Nickname
+ * oder liefert einen korrespondierenden Benutzerdatensatz zurück.
+ *
+ * @param {String} nickName
+ * @returns
+ */
 async function createOrGetUserByName (nickName) {
   if ((nickName || '').lenght == 0) {
     throw new Error ('reateOrGetUserByName: Es wurde kein Nickname angegeben.');
@@ -99,6 +114,14 @@ async function createOrGetUserByName (nickName) {
   return userRecord;
 }
 
+/**
+ * Diese Funktion liefert eine List an Chat-Kontakten (Chat-Liste)
+ * zu angegebenen Benutzer-ID.
+ *
+ * @param {*} currentUserId
+ * @param {*} appServer
+ * @returns
+ */
 async function getChatListForUser (currentUserId, appServer) {
   let conMgr = new ConnectionManager ();
   let connection = await conMgr.connect ();
@@ -122,13 +145,21 @@ async function getChatListForUser (currentUserId, appServer) {
   // Resultat sortieren: Zunächst alpahbetisch
   // und dann im 2. Schritt den aktuellen Benutzer an Stelle 1 schieben.
   userList.sort ((a, b) => a.name - b.name);
-  const changePosInArray = (arr, init, target) => {[arr[init],arr[target]] = [arr[target],arr[init]]; return arr};
+  const changePosInArray = (arr, init, target) => {[arr[init],arr[target]] = [arr[target],arr[init]]; return arr;};
   const indexIsMe = userList.findIndex (u => u.isme);
   userList = changePosInArray (userList, indexIsMe, 0);
 
   return userList;
 }
 
+/**
+ * Diese Funktion speichert eine neue Chat-Nachricht in der Datenbank.
+ *
+ * @param {*} senderUserId
+ * @param {*} recipientUserId
+ * @param {*} message
+ * @returns
+ */
 async function saveChatMessage (senderUserId, recipientUserId, message) {
   let conMgr = new ConnectionManager ();
   let connection = await conMgr.connect ();
@@ -140,6 +171,13 @@ async function saveChatMessage (senderUserId, recipientUserId, message) {
   });
 }
 
+/**
+ * Diese Funktion benachrichtigt (Push) ausschließlich die an einer Chat-Nachricht
+ * beteildigten Benutzer über die Existenz einer neuen Nachricht.
+ *
+ * @param {*} chatMember
+ * @param {*} appServer
+ */
 async function notifyChatMemberForNewMessage (chatMember, appServer) {
   let usrIds = [chatMember.senderUserId, chatMember.recipientUserId];
   let clientConMgr = appServer.getClientConnectionManager ();
@@ -149,7 +187,21 @@ async function notifyChatMemberForNewMessage (chatMember, appServer) {
   }
 }
 
-async function loadChatConversation (messageId, chatmemberUserIds=[], complete, currentUserId, appServer) {
+/**
+ * Diese Funktion lädt eine spezifische Chat-Konversation anhand einer Message-ID.
+ * Wird explizit keine Message-ID angegeben ist die Angabe mindestens von 2 Benutzer-ID's
+ * notwendig, um eine Liste aller Chat-Konversationen zwischen diesen Personen zu laden.
+ * 
+ * Über den Parameter 'complete' kann auch bei Angabe einer Message-ID der gesamte Gesprächsverlauf
+ * der in der Message genannten Personen geladen werden.
+ *
+ * @param {*} messageId
+ * @param {*} [chatmemberUserIds=[]]
+ * @param {*} complete
+ * @param {*} currentUserId
+ * @returns
+ */
+async function loadChatConversation (messageId, chatmemberUserIds=[], complete, currentUserId) {
   if (messageId == null && chatmemberUserIds.length < 2) {
     throw new Error ('Chat kann nicht geladen werden.\nChat-Teilnehmer sind unbekannt.');
   }
@@ -215,10 +267,18 @@ async function loadChatConversation (messageId, chatmemberUserIds=[], complete, 
   return result;
 }
 
+/**
+ * Diese Funktion erzeugt einen Standard Result-Datensatz für den Callback
+ * der Client-Anfrage.
+ *
+ * @param {*} param
+ * @param {*} type
+ * @returns
+ */
 function createDefaultResultContainer (param, type) {
 	return {
 		target: param?.target || 'unknown',
-		type: type,
+		type: type ?? RESULTTYPES.NOP,
 		message: '',
 		data: []
 	}
