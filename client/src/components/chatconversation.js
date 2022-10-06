@@ -69,12 +69,12 @@ export default function ChatConversation(props) {
             <Grid item xs={12}>
               <Divider />
             </Grid>
-            <Grid item xs={10} pl={3}>
+            <Grid item xs={9} pl={3}>
               <FormControl fullWidth>
                 <TextField label="Nachricht" value={message} required variant='outlined' onChange={(event) => setMessage (event.target.value)}></TextField>
               </FormControl>
             </Grid>
-            <Grid item xs={2}  pl={3} pr={3} >
+            <Grid item xs={3}  pl={3} pr={3} >
               <Button variant="contained" fullWidth endIcon={<Icon>send</Icon>} onClick={onClickSend}>
                 Senden
               </Button>
