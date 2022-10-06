@@ -1,3 +1,12 @@
+# chatnow - Technologie-Stack
+1. Node.js
+3. DB: PostgresSQL
+4. ORM: Sequelize
+5. http/Express
+6. Socket.io
+7. React v18
+8. MaterialUI (mui.com) v4.x
+
 # chatnow - Installationsanleitung
 ## 1 - Postgres Datenbank im Docker installieren und starten
 ```
