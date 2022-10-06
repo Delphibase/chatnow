@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
+import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import ListItemAvatar from '@mui/material/ListItemAvatar';
 import Box from '@mui/material/Box';
@@ -22,9 +22,12 @@ const useStyles = makeStyles((theme) => ({
 
 export default function ChatList(props) {
   const classes = useStyles();
+  let selUserId = props.selectedChatUserInfo ? props.selectedChatUserInfo._id : null;
+  const [selectedItemId, setSelectedItemId] = useState (selUserId);
   
   const onClickUser = (event) => {
     if (props.onChatClicked && event.target.offsetParent && event.target.offsetParent.id) {
+      setSelectedItemId (event.target.offsetParent.id);
       props.onChatClicked ({_id: event.target.offsetParent.id, name: event.target.offsetParent.textContent});
     }
   };
@@ -33,7 +36,7 @@ export default function ChatList(props) {
   const chatItems = chats.map (elm => {
     let avtColorStyle = elm.isOnline ? {color:'green'} : {color:'white'};
     return (
-      <ListItem button id={elm._id} onClick={onClickUser}>
+      <ListItemButton id={elm._id} onClick={onClickUser} selected={elm._id == selectedItemId}>
         <ListItemAvatar>
           <Avatar>
             <People style={avtColorStyle}/>
@@ -42,7 +45,7 @@ export default function ChatList(props) {
         <ListItemText primary={elm.name}/>
         <Badge color="secondary" variant="dot" invisible={! props.unreadMessagesFromUser.includes (elm._id)}>
         </Badge>
-      </ListItem>
+      </ListItemButton>
     )
   });
   

@@ -92,7 +92,7 @@ function App(props) {
         <TitleBar currentUser={currentUser}/>
         <Grid container spacing={3}>
           <Grid item xs={3}>
-            <ChatList chats={chatList} onChatClicked={setSelectedChatUserInfo} unreadMessagesFromUser={unreadMessagesFromUserList}/>
+            <ChatList selectedChatUserInfo={selectedChatUserInfo} chats={chatList} onChatClicked={setSelectedChatUserInfo} unreadMessagesFromUser={unreadMessagesFromUserList}/>
           </Grid>
           <Grid item xs={9}>
             <ChatConversation selectedChatUserInfo={selectedChatUserInfo} chatconversation={currentConversationInfo} onSendMessageClick={sendMessage}/>
