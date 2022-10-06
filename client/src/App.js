@@ -7,7 +7,14 @@ import ChatList from './components/chatlist';
 import ChatConversation from './components/chatconversation';
 import NicknameDialog from './components/nickname';
 
-
+/**
+ * Diese Komponente stelt den Hauptrahmen der Chat-Anwendung dar.
+ * Wenn der Nutzer noch keinen Nickname vergeben hat, wird zunächst
+ * ein Eingabedialog für den Nichname angezeigt.
+ *
+ * @param {*} props
+ * @returns
+ */
 function App(props) {
   const [_, forceUpdate] = useReducer((x) => x + 1, 0);
   const [currentUser, setCurrentUser] = React.useState (null);
@@ -28,12 +35,16 @@ function App(props) {
     setReloadChatContactList (true);
   };
 
-  // Callback für Push-Benachrichtigung bei neuer Nachricht
+  // Callback für Push-Benachrichtigung bei neuer Nachricht an den Benutzer
+  // der akiven Socket-Verbindung
+  // Wichtig: Auch selbst versendete Nachrichten werden über diese Weg an den Client zurück
+  // geliefert, damit dieser im Chat-Verlauf hinzugefügt und angezeigt werden.
   props.backendCommunication.onNewMessageReceived = (data) => {
     let usrIds = [data.chatmember.senderUserId, data.chatmember.recipientUserId];
     if (usrIds.includes (currentUser._id) && usrIds.includes (selectedChatUserInfo._id)) {
       setNewMessageId (data.chatmember.messageId);
     }
+    // Fall: Client bekommt Message eines anderes Clients
     if (data.chatmember.senderUserId != currentUser._id) {
       if (! unreadMessagesFromUserList.includes (data.chatmember.senderUserId)) {
         unreadMessagesFromUserList.push (data.chatmember.senderUserId);
@@ -43,12 +54,16 @@ function App(props) {
     }
   };
 
+  // Event-Handler, wenn der Anwender im Dialog NicknameDialog einen Namen eingegeben hat.
+  // Weitergabe des Nicknames an das Backend und ensprechende Chat-Daten zu laden.
   const onResultNicknameDlg = (res) => {
     if (res.resultTyp == 1) {
       props.backendCommunication.doRequest ({target: 'enternickname', data: {nickname: res.nickname}});
     }
   };
 
+  // Event-Handler aus der Komponente ChatConversation, um eine Nachricht an den
+  // Empfänger zu senden.
   const sendMessage = (messageInfo) => {
     props.backendCommunication.doRequest ({target: 'sendmessage', messageInfo});
   };
