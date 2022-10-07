@@ -7,7 +7,7 @@
 7. React v18
 8. MaterialUI (mui.com) v4.x
 
-Sneak-Peak Video: https://hidrive.ionos.com/lnk/g9VruuuQ
+Sneak-Peak Video: https://hidrive.ionos.com/lnk/yc1ruMgr
 
 # chatnow - Installationsanleitung
 ## 1 - Postgres Datenbank im Docker installieren und starten
@@ -55,6 +55,6 @@ Befehl ``` npm start ``` ausführen
 ## 5- Am Chat-Client anmelden
 Im Browser ```http://localhost:3000``` öffnen und mit belibigem Nichname anmelden.
 
-Hier ergänzend noch ein Sneak-Peak Video: https://hidrive.ionos.com/lnk/g9VruuuQ
+Hier ergänzend noch ein Sneak-Peak Video: https://hidrive.ionos.com/lnk/yc1ruMgr
 
 
